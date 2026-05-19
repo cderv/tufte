@@ -3,3 +3,6 @@
 .RData
 .*.Rnb.cached
 .positai
+.claude/*
+.agents/
+.CLAUDE.local.md
