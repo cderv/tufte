@@ -6,3 +6,4 @@
 .claude/*
 .agents/
 .CLAUDE.local.md
+!.claude/CLAUDE.md
