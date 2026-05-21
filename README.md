@@ -24,7 +24,7 @@ example.
 
 See about the Tufte Handouts format in R Markdown Definitive Guide
 
-## Installations
+## Installation
 
 You can install the last available released version from
 [CRAN](https://cran.r-project.org/package=tufte)
