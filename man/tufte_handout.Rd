@@ -117,6 +117,15 @@ background/foreground colors).}
 \item{icon}{A character string to indicate there is a hidden margin note when
 the page width is too narrow (by default it is a circled plus sign)}
 }
+\value{
+\code{tufte_handout()}, \code{tufte_book()}, \code{tufte_html()}, and the
+bookdown wrappers \code{tufte_handout2()}, \code{tufte_book2()}, and
+\code{tufte_html2()} return an R Markdown output format object that can
+be passed to \code{\link[rmarkdown:render]{rmarkdown::render()}}. The inline helpers
+\code{newthought()}, \code{margin_note()}, \code{quote_footer()}, and
+\code{sans_serif()} return a character string with HTML or LaTeX markup
+depending on the active output format.
+}
 \description{
 Templates for creating handouts according to the style of Edward R. Tufte and
 Richard Feynman.
