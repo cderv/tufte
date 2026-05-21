@@ -19,6 +19,13 @@
 #'   [rmarkdown::html_document()] (note you cannot use the `template`
 #'   argument in `tufte_handout` or the `theme` argument in
 #'   `tufte_html()`; these arguments have been set internally)
+#' @return `tufte_handout()`, `tufte_book()`, `tufte_html()`, and the
+#'   bookdown wrappers `tufte_handout2()`, `tufte_book2()`, and
+#'   `tufte_html2()` return an R Markdown output format object that can
+#'   be passed to [rmarkdown::render()]. The inline helpers
+#'   `newthought()`, `margin_note()`, `quote_footer()`, and
+#'   `sans_serif()` return a character string with HTML or LaTeX markup
+#'   depending on the active output format.
 #' @references See <https://rstudio.github.io/tufte/> for an example.
 #' @export
 #' @examples library(tufte)
