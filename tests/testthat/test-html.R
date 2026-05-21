@@ -209,8 +209,13 @@ test_that("tufte_html2() resolves text references in fig.cap (#60)", {
     "```"
   )
   html <- paste(.render_and_read(rmd), collapse = "\n")
+  # Primary assertion: a regression that stops resolving (ref:label) in
+  # captions would leave the literal label in the rendered HTML. The
+  # link/href assertion alone is not enough because the (ref:) definition
+  # paragraph also contains the rendered link.
+  expect_false(grepl("(ref:cars-cap)", html, fixed = TRUE))
   expect_match(html, '<a href="https://example\\.org">cars data set</a>')
-  # Raw markdown link syntax should NOT appear
+  # Raw markdown link syntax should NOT appear in resolved output
   expect_false(grepl("](https://example.org)", html, fixed = TRUE))
 })
 
