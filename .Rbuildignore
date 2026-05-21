@@ -15,3 +15,5 @@
 ^\.agents$
 ^tools($|/)
 ^skills-lock\.json$
+^\.private-journal$
+^PLAN-.*\.md$
