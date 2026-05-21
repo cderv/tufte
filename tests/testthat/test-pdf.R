@@ -342,6 +342,17 @@ test_that("patches/tufte-common.def redefines natbib \\citep and \\citet (#48)",
     any(grepl("RenewDocumentCommand.*\\\\citet", def_content)),
     label = "RenewDocumentCommand for \\citet present"
   )
+  # The xparse signature must consume the optional star so raw-LaTeX
+  # \citep*{key} / \citet*{key} routes through the same margin path
+  # instead of mis-parsing the `*` as the citation key.
+  expect_true(
+    any(grepl("RenewDocumentCommand\\{\\\\citep\\}\\{s ", def_content)),
+    label = "\\citep signature consumes star (s o o m)"
+  )
+  expect_true(
+    any(grepl("RenewDocumentCommand\\{\\\\citet\\}\\{s ", def_content)),
+    label = "\\citet signature consumes star (s o o m)"
+  )
 })
 
 test_that("natbib citations render through tufte_handout (#48)", {
@@ -355,6 +366,32 @@ test_that("natbib citations render through tufte_handout (#48)", {
     "---",
     "",
     "Parenthetical [@smith2000]. Textual @jones2010 said X.",
+    .env = parent.frame()
+  )
+  writeLines(
+    c(
+      "@article{smith2000,author={Smith, John},title={t},journal={j},year={2000}}",
+      "@book{jones2010,author={Jones, Alice},title={t},publisher={p},year={2010}}"
+    ),
+    file.path(dirname(rmd), "refs.bib")
+  )
+  output <- local_render_pdf(rmd)
+  expect_true(file.exists(output))
+})
+
+test_that("raw-LaTeX \\citep* / \\citet* render through tufte_handout (#48)", {
+  skip_on_cran()
+  rmd <- local_rmd_file(
+    "---",
+    "output:",
+    "  tufte::tufte_handout:",
+    "    citation_package: natbib",
+    "bibliography: refs.bib",
+    "---",
+    "",
+    "Starred parenthetical \\citep*{smith2000}.",
+    "",
+    "Starred textual \\citet*{jones2010} said X.",
     .env = parent.frame()
   )
   writeLines(

@@ -8,7 +8,10 @@
   "Author (Year)" form inline while adding the full reference to the
   margin. Suppress-author citations (`[-@key]`, emitted as `\citeyearpar`)
   are intentionally left inline at natbib's default rendering. Optional
-  prefix/locator arguments are dropped (thanks, @jlorieau, #48).
+  prefix/locator arguments are dropped, and the starred forms `\citep*` /
+  `\citet*` (raw-LaTeX only; pandoc does not emit them) route through the
+  same margin path instead of mis-parsing the `*` as the citation key
+  (thanks, @jlorieau, #48).
   
 - `quote_footer()` now right-aligns the footer in non-tufte HTML output
   (e.g. `html_document`, including `bslib` Bootstrap 4 and 5 themes) via an

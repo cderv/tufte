@@ -95,11 +95,15 @@ if (length(cite_idx) == 1) {
       "% citations render inline as natbib's defaults, missing the margin entirely.",
       "% \\citeyearpar (emitted for [-@key]) is left inline by design. Optional",
       "% prefix/locator arguments are dropped: \\citep[p.~5]{key} still places the",
-      "% full bibentry in the margin but does not echo the locator.",
+      "% full bibentry in the margin but does not echo the locator. The starred",
+      "% forms \\citep* / \\citet* (raw-LaTeX only; pandoc does not emit them) are",
+      "% accepted via the `s` token but route through the same unstarred margin",
+      "% path -- the star is consumed rather than parsed as part of the citation",
+      "% key.",
       "",
       "\\ifthenelse{\\boolean{@tufte@loadnatbib}}{%",
-      "  \\RenewDocumentCommand{\\citep}{o o m}{\\cite{#3}}%",
-      "  \\RenewDocumentCommand{\\citet}{o o m}{\\citeauthor{#3}~(\\citeyear{#3})\\cite{#3}}%",
+      "  \\RenewDocumentCommand{\\citep}{s o o m}{\\cite{#4}}%",
+      "  \\RenewDocumentCommand{\\citet}{s o o m}{\\citeauthor{#4}~(\\citeyear{#4})\\cite{#4}}%",
       "}{}"
     )
     patched <- c(
