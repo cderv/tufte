@@ -7,9 +7,16 @@ test_that("tufte_book() does not warn about crop tools", {
 })
 
 test_that("fig_crop = 'auto' disables crop hook when tools are missing", {
-  skip_if_not(
-    !nzchar(Sys.which("pdfcrop")) || !nzchar(Sys.which("gs")),
-    "pdfcrop or ghostscript must be missing for this test"
+  # Crop-tool detection (pdfcrop + ghostscript) varies by platform and
+  # CRAN check environment, so query rmarkdown's own resolver to decide
+  # whether the preconditions for this test hold. If rmarkdown would
+  # itself set a crop hook for fig_crop = "auto", the test's premise
+  # does not apply on this machine.
+  baseline <- rmarkdown::knitr_options_pdf(4, 2.5, "auto", "pdf")
+  skip_on_cran()
+  skip_if(
+    !is.null(baseline$knit_hooks$crop),
+    "crop tools must be missing for this test"
   )
   fmt <- tufte_handout()
   expect_null(fmt$knitr$knit_hooks$crop)
