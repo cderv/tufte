@@ -1,68 +1,60 @@
 # tufte (development version)
 
-- Fixed `tufte_handout()` and `tufte_book()` placing natbib citations inline
-  instead of in the margin when `citation_package: natbib` is used. Pandoc
-  emits `\citep` / `\citet` for `[@key]` / `@key`, neither of which the
-  tufte-latex classes redirect. The patched `tufte-common.def` now routes
-  both through the margin sidenote machinery. `\citet` keeps its textual
-  "Author (Year)" form inline while adding the full reference to the
-  margin. Suppress-author citations (`[-@key]`, emitted as `\citeyearpar`)
-  are intentionally left inline at natbib's default rendering. Optional
-  prefix/locator arguments are dropped, and the starred forms `\citep*` /
-  `\citet*` (raw-LaTeX only; pandoc does not emit them) route through the
-  same margin path instead of mis-parsing the `*` as the citation key
-  (thanks, @jlorieau, #48).
-  
-- `quote_footer()` now right-aligns the footer in non-tufte HTML output
-  (e.g. `html_document`, including `bslib` Bootstrap 4 and 5 themes) via an
-  inline `text-align: right` style, and tags the footer with
-  `class="blockquote-footer"` so that Bootstrap 4/5's class-based styling
-  applies (Bootstrap 3 already styled the `<footer>` element directly).
-  `quote_footer()` no longer warns when called outside of a pandoc context
-  (e.g. when called from R code that is not being knit), so it can be used
-  unconditionally in inline R expressions (#73).
+## New features
+
+- `tufte_handout()` and `tufte_book()` gain a `margin_fig_pos` argument
+  for controlling the vertical offset of margin figures globally. Set in
+  YAML (`margin_fig_pos: "0cm"`), via `knitr::opts_chunk$set()`, or
+  per-chunk. Per-chunk `fig.pos` still overrides it, and a global
+  `opts_chunk$set(fig.pos = ...)` (intended for regular figures) no
+  longer leaks onto margin chunks (#62).
+
+- New `tufte_handout2()`, `tufte_book2()`, and `tufte_html2()` wrap the
+  corresponding bookdown output formats, enabling text references
+  `(ref:label)` in figure and table captions and cross-references.
+  Markdown links in `fig.cap` are now converted to LaTeX. Requires the
+  bookdown package (suggested) (#60).
+
+## Minor improvements and fixes
+
+- `fig.margin = TRUE` (and `fig.fullwidth = TRUE`) are now honoured in
+  HTML output when `fig.align` is set. The margin/fullwidth wrapper was
+  previously dropped because the figure hook missed the `style`
+  attribute added by knitr (#54).
+
+- The obsolete `usenames` option is no longer passed to the `xcolor`
+  LaTeX package, suppressing a warning on TeX Live 2022+ (#127).
 
 - `quote_footer()` now renders an em-dash consistently across tufte and
-  non-tufte outputs when the caller writes a leading `"---"` (the pattern
-  shown in the R Markdown documentation). For non-tufte HTML, the leading
-  `"---"` is stripped so it is not doubled with the em-dash that Bootstrap's
-  `::before` rule injects; for tufte HTML, an em-dash glyph is inserted in
-  the markup since `tufte.css` has no such rule; for LaTeX outputs the
-  leading `"---"` is preserved so pandoc's smart-punctuation extension
-  converts it to an em-dash glyph. The tufte output formats now register a
-  `tufte.format` entry in `knitr::opts_knit` so `quote_footer()` can detect
-  whether it is being called from a tufte format (#73).
+  non-tufte outputs when the caller writes a leading `"---"`. For
+  non-tufte HTML the leading `"---"` is stripped to avoid doubling with
+  Bootstrap's `::before` em-dash; for tufte HTML an em-dash glyph is
+  inserted in the markup; for LaTeX the leading `"---"` is preserved so
+  pandoc's smart-punctuation extension converts it (#73).
 
-- Changed the default value of `fig_crop` from `TRUE` to `"auto"` in `tufte_handout()` and `tufte_book()`, consistent with `rmarkdown::pdf_document()`. This avoids a spurious warning about `pdfcrop` not being found when the crop tools are not installed (thanks, @sandhya9215, 
-#124).
+- `quote_footer()` now right-aligns the footer in non-tufte HTML output
+  (e.g. `html_document`, including `bslib` Bootstrap 4 and 5 themes) and
+  tags it with `class="blockquote-footer"` so Bootstrap 4/5 class-based
+  styling applies. `quote_footer()` no longer warns when called outside
+  a pandoc context, so it can be used unconditionally in inline R
+  expressions (#73).
 
-- Fixed `fig.margin = TRUE` (and `fig.fullwidth = TRUE`) being ignored when
-  `fig.align` is set in HTML output. The margin/fullwidth wrapper was silently
-  dropped because the figure hook used an exact string match that missed the
-  extra `style` attribute added by knitr (#54).
+- `tufte_handout()` and `tufte_book()` no longer place natbib citations
+  inline when `citation_package: natbib` is used. The patched
+  `tufte-common.def` now routes pandoc's `\citep` and `\citet` through
+  the margin sidenote machinery; `\citet` keeps its textual
+  "Author (Year)" form inline while adding the full reference to the
+  margin (thanks, @jlorieau, #48).
 
-- Fixed `nocite` references being silently dropped in `tufte_html()` when
-  `link-citations: yes`. References without in-text citations are now preserved
-  in the bibliography section at the bottom of the document (#35).
+- `tufte_handout()` and `tufte_book()` use `fig_crop = "auto"` by
+  default (matching `rmarkdown::pdf_document()`), avoiding a spurious
+  warning about `pdfcrop` when crop tools are not installed (thanks,
+  @sandhya9215, #124).
 
-- Removed obsolete `usenames` option from `xcolor` package loading to suppress
-  warning on TeX Live 2022+ (#127).
-
-- Added new `margin_fig_pos` option to `tufte_handout()` and `tufte_book()`
-  for controlling the vertical offset of margin figures globally. This can be
-  set in YAML (e.g. `margin_fig_pos: "0cm"`), via
-  `knitr::opts_chunk$set(margin_fig_pos = "0cm")`, or per-chunk. Per-chunk
-  `fig.pos` still overrides it; a global `opts_chunk$set(fig.pos = ...)`
-  (intended for regular figures) no longer leaks onto margin chunks and
-  override `margin_fig_pos`. This addresses the margin figure alignment
-  issue without the semantic mismatch of setting `fig.pos` globally, which
-  would break regular figures (#62).
-
-- Added `tufte_handout2()`, `tufte_book2()`, and `tufte_html2()` as wrappers
-  around the corresponding bookdown output formats. These support bookdown
-  text references `(ref:label)` in figure/table captions and cross-references,
-  which resolves the issue of markdown links in `fig.cap` not being converted
-  to LaTeX (#60). Requires the bookdown package (suggested, not imported).
+- `tufte_html()` no longer drops `nocite` references when
+  `link-citations: yes`. References without in-text citations are
+  preserved in the bibliography section at the bottom of the document
+  (#35).
 
 # tufte 0.14.0
 
