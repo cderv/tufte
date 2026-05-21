@@ -130,7 +130,7 @@ sans_serif <- function(text) {
 check_bookdown <- function() {
   if (!xfun::pkg_available("bookdown")) {
     stop(
-      "The 'bookdown' package is required for tufte_handout2()/tufte_book2(). ",
+      "The 'bookdown' package is required for tufte_handout2(), tufte_book2(), and tufte_html2(). ",
       "Install it with install.packages('bookdown').",
       call. = FALSE
     )

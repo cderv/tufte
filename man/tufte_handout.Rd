@@ -151,9 +151,28 @@ HTML (\samp{<span class="newthought">text</span>}) and PDF
 \code{margin_note()} can be used in inline R expressions to write a
 margin note (like a sidenote but not numbered).
 
-\code{quote_footer()} formats text as the footer of a quote. It puts
-\code{text} in \samp{<footer></footer>} for HTML output, and
-after \samp{\\hfill} for LaTeX output (to right-align text).
+\code{quote_footer()} formats text as the footer of a quote. It works in
+any HTML or LaTeX output format, not only tufte formats, and tries to
+render \code{text} consistently across formats:
+\itemize{
+\item If \code{text} starts with \code{"---"} (or an em-dash), an em-dash + non-breaking
+space is rendered before the rest of the text in every output. The
+leading \code{"---"} is stripped from \code{text} to avoid duplication when the
+destination format would otherwise inject its own em-dash.
+\item For tufte HTML, \code{text} is wrapped in a \verb{<footer>} element styled by
+\code{tufte.css}. For non-tufte HTML (e.g. \code{rmarkdown::html_document()},
+including \code{bslib} Bootstrap 4 and 5 themes), \code{text} is wrapped in a
+\verb{<footer class="blockquote-footer">} so that Bootstrap's
+\code{.blockquote-footer} styling (including the \verb{::before} em-dash) applies.
+An inline \code{text-align: right} is added in both cases.
+\item For LaTeX output (tufte or non-tufte), \code{text} is prepended with
+\samp{\\hfill} to right-align it. Pandoc's smart-punctuation extension
+converts a leading \code{"---"} to an em-dash glyph.
+}
+
+\code{quote_footer()} detects whether the active output is a tufte format via
+the \code{tufte.format} entry that the tufte output formats register in
+\code{knitr::opts_knit}.
 
 \code{sans_serif()} applies sans-serif fonts to \code{text}.
 }

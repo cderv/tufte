@@ -193,6 +193,27 @@ test_that("tufte_html2() renders", {
   expect_true(length(html) > 0)
 })
 
+test_that("tufte_html2() resolves text references in fig.cap (#60)", {
+  skip_on_cran()
+  skip_if_not_pandoc()
+  skip_if_not_installed("bookdown")
+  rmd <- local_rmd_file(
+    "---",
+    "output: tufte::tufte_html2",
+    "---",
+    "",
+    "(ref:cars-cap) A plot of the [cars data set](https://example.org).",
+    "",
+    "```{r cars-plot, fig.cap='(ref:cars-cap)', echo=FALSE}",
+    "plot(cars)",
+    "```"
+  )
+  html <- paste(.render_and_read(rmd), collapse = "\n")
+  expect_match(html, '<a href="https://example\\.org">cars data set</a>')
+  # Raw markdown link syntax should NOT appear
+  expect_false(grepl("](https://example.org)", html, fixed = TRUE))
+})
+
 # footnote parsing ---------------------------------------------------------
 
 test_that("footnotes are correctly parsed", {
