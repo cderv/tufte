@@ -1,4 +1,4 @@
-# tufte (development version)
+# tufte 0.15.0
 
 ## New features
 
@@ -39,12 +39,13 @@
   a pandoc context, so it can be used unconditionally in inline R
   expressions (#73).
 
-- `tufte_handout()` and `tufte_book()` no longer place natbib citations
-  inline when `citation_package: natbib` is used. The patched
-  `tufte-common.def` now routes pandoc's `\citep` and `\citet` through
-  the margin sidenote machinery; `\citet` keeps its textual
-  "Author (Year)" form inline while adding the full reference to the
-  margin (thanks, @jlorieau, #48).
+- `tufte_handout()` and `tufte_book()` no longer place pandoc's `\citep`
+  and `\citet` natbib citations inline when `citation_package: natbib`
+  is used. The patched `tufte-common.def` routes both through the
+  margin sidenote machinery; `\citet` keeps its textual "Author (Year)"
+  form inline while adding the full reference to the margin.
+  Suppress-author citations (`[-@key]`, emitted as `\citeyearpar`) are
+  intentionally left inline (thanks, @jlorieau, #48).
 
 - `tufte_handout()` and `tufte_book()` use `fig_crop = "auto"` by
   default (matching `rmarkdown::pdf_document()`), avoiding a spurious
