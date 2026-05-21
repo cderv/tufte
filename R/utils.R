@@ -137,6 +137,19 @@ check_bookdown <- function() {
   }
 }
 
+# Decide whether a chunk explicitly set `fig.pos` in its chunk header. The
+# plot hook receives merged options (chunk-level + global defaults), so
+# checking `options$fig.pos` alone cannot tell the two apart. Parsing
+# `options$params.src` (the raw header text) is the only way to recover
+# the original per-chunk intent. Used by the margin-figure precedence rule
+# for `margin_fig_pos` (#62).
+chunk_sets_fig_pos <- function(params_src) {
+  if (is.null(params_src)) {
+    return(FALSE)
+  }
+  grepl("(^|,)\\s*fig\\.pos\\s*=", params_src)
+}
+
 devtools_loaded <- function(x) {
   if (!x %in% loadedNamespaces()) {
     return(FALSE)

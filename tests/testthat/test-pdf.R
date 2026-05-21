@@ -170,6 +170,41 @@ test_that("margin_fig_pos does not affect regular figures (#62)", {
   expect_false(any(grepl("0.5cm", figure_lines, fixed = TRUE)))
 })
 
+test_that("margin_fig_pos wins over a global opts_chunk$set(fig.pos=) (#62)", {
+  skip_on_cran()
+  # Reproduces the pre-fix bug: a global `fig.pos = "htbp"` (intended for
+  # regular figures) used to leak onto margin chunks via merged-options
+  # lookup, producing `\begin{marginfigure}[htbp]` and a LaTeX error.
+  tex <- local_render_tex(c(
+    "---",
+    "output:",
+    "  tufte::tufte_handout:",
+    "    keep_tex: true",
+    "    margin_fig_pos: '0.5cm'",
+    "---",
+    "",
+    "```{r setup, include=FALSE}",
+    "knitr::opts_chunk$set(fig.pos = 'htbp')",
+    "```",
+    "",
+    "```{r fig.margin=TRUE, fig.cap='margin', echo=FALSE}",
+    "plot(1:5)",
+    "```",
+    "",
+    "```{r fig.cap='regular', echo=FALSE}",
+    "plot(1:5)",
+    "```"
+  ))
+  marginfig <- grep("\\\\begin\\{marginfigure\\}", tex, value = TRUE)
+  expect_length(marginfig, 1)
+  # Margin figure must use the length, not the global placement specifier
+  expect_match(marginfig, "[0.5cm]", fixed = TRUE)
+  expect_false(any(grepl("htbp", marginfig, fixed = TRUE)))
+  # Regular figure must still receive the global placement specifier
+  figure_lines <- grep("\\\\begin\\{figure\\}", tex, value = TRUE)
+  expect_true(any(grepl("htbp", figure_lines, fixed = TRUE)))
+})
+
 # tufte_handout2 / tufte_book2 (bookdown wrappers, issue #60) ---------------
 
 test_that("tufte_handout2() renders a basic PDF", {

@@ -52,7 +52,9 @@
   for controlling the vertical offset of margin figures globally. This can be
   set in YAML (e.g. `margin_fig_pos: "0cm"`), via
   `knitr::opts_chunk$set(margin_fig_pos = "0cm")`, or per-chunk. Per-chunk
-  `fig.pos` still overrides it. This addresses the margin figure alignment
+  `fig.pos` still overrides it; a global `opts_chunk$set(fig.pos = ...)`
+  (intended for regular figures) no longer leaks onto margin chunks and
+  override `margin_fig_pos`. This addresses the margin figure alignment
   issue without the semantic mismatch of setting `fig.pos` globally, which
   would break regular figures (#62).
 
