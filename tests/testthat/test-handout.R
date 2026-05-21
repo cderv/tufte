@@ -13,7 +13,6 @@ test_that("fig_crop = 'auto' disables crop hook when tools are missing", {
   # itself set a crop hook for fig_crop = "auto", the test's premise
   # does not apply on this machine.
   baseline <- rmarkdown::knitr_options_pdf(4, 2.5, "auto", "pdf")
-  skip_on_cran()
   skip_if(
     !is.null(baseline$knit_hooks$crop),
     "crop tools must be missing for this test"
