@@ -185,15 +185,17 @@ tufte_pdf <- function(
         options$fig.cap <- ""
       }
       # Apply margin_fig_pos as the vertical offset for margin figures,
-      # unless the user has set fig.pos explicitly on this chunk (#62).
-      # `options$fig.pos` reflects merged options, so checking it directly
-      # would also fire for `knitr::opts_chunk$set(fig.pos = "htbp")` set
-      # globally for regular figures -- yielding `\begin{marginfigure}[htbp]`,
-      # which is invalid (the optional argument is a length, not a placement
-      # specifier). Detect an explicit per-chunk `fig.pos=` via params.src.
+      # unless this chunk has its own fig.pos (#62). `options$fig.pos` is
+      # the merged value, so checking it directly would also fire for a
+      # global `knitr::opts_chunk$set(fig.pos = "htbp")` intended for
+      # regular figures, yielding `\begin{marginfigure}[htbp]` (invalid:
+      # the optional argument is a length, not a placement specifier).
+      # chunk_overrides_fig_pos() distinguishes chunk-level values (header
+      # literal or opts_template/opts.label injection) from the merged
+      # global default.
       if (
         !is.null(options$margin_fig_pos) &&
-          !chunk_sets_fig_pos(options$params.src)
+          !chunk_overrides_fig_pos(options)
       ) {
         options$fig.pos <- options$margin_fig_pos
       }

@@ -137,17 +137,26 @@ check_bookdown <- function() {
   }
 }
 
-# Decide whether a chunk explicitly set `fig.pos` in its chunk header. The
-# plot hook receives merged options (chunk-level + global defaults), so
-# checking `options$fig.pos` alone cannot tell the two apart. Parsing
-# `options$params.src` (the raw header text) is the only way to recover
-# the original per-chunk intent. Used by the margin-figure precedence rule
-# for `margin_fig_pos` (#62).
-chunk_sets_fig_pos <- function(params_src) {
-  if (is.null(params_src)) {
-    return(FALSE)
+# Decide whether the current chunk has a `fig.pos` value that should win
+# over `margin_fig_pos`. The plot hook receives merged options
+# (chunk-level + global defaults), so `options$fig.pos` alone cannot tell
+# the two apart. Two independent signals together cover the cases:
+#
+#   1. The raw chunk header (`options$params.src`) contains a literal
+#      `fig.pos=` -- this catches the direct-write case even when the
+#      chunk value happens to equal the global default.
+#   2. The merged `options$fig.pos` differs from the global default
+#      `knitr::opts_chunk$get("fig.pos")` -- this catches indirect
+#      chunk-level settings via `opts.label` / `opts_template`, which
+#      never appear in `params.src`.
+#
+# Used by the margin-figure precedence rule for `margin_fig_pos` (#62).
+chunk_overrides_fig_pos <- function(options) {
+  params_src <- options$params.src
+  if (!is.null(params_src) && grepl("(^|,)\\s*fig\\.pos\\s*=", params_src)) {
+    return(TRUE)
   }
-  grepl("(^|,)\\s*fig\\.pos\\s*=", params_src)
+  !identical(options$fig.pos, knitr::opts_chunk$get("fig.pos"))
 }
 
 devtools_loaded <- function(x) {

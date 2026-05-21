@@ -205,6 +205,35 @@ test_that("margin_fig_pos wins over a global opts_chunk$set(fig.pos=) (#62)", {
   expect_true(any(grepl("htbp", figure_lines, fixed = TRUE)))
 })
 
+test_that("opts_template fig.pos overrides margin_fig_pos (#62)", {
+  skip_on_cran()
+  # Indirect chunk-level fig.pos (via opts_template + opts.label) never
+  # appears in `params.src`, so the params.src-literal check alone would
+  # miss it. The hook must also notice that `options$fig.pos` differs from
+  # the global knitr default and respect the chunk's intent.
+  tex <- local_render_tex(c(
+    "---",
+    "output:",
+    "  tufte::tufte_handout:",
+    "    keep_tex: true",
+    "    margin_fig_pos: '0.5cm'",
+    "---",
+    "",
+    "```{r setup, include=FALSE}",
+    "knitr::opts_template$set(margin_at_1 = list(fig.margin = TRUE, fig.pos = '1cm'))",
+    "```",
+    "",
+    "```{r opts.label='margin_at_1', fig.cap='templated margin', echo=FALSE}",
+    "plot(1:5)",
+    "```"
+  ))
+  marginfig <- grep("\\\\begin\\{marginfigure\\}", tex, value = TRUE)
+  expect_length(marginfig, 1)
+  # opts_template value (1cm) must win, NOT the format-level margin_fig_pos
+  expect_match(marginfig, "[1cm]", fixed = TRUE)
+  expect_false(any(grepl("0.5cm", marginfig, fixed = TRUE)))
+})
+
 # tufte_handout2 / tufte_book2 (bookdown wrappers, issue #60) ---------------
 
 test_that("tufte_handout2() renders a basic PDF", {
