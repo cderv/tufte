@@ -7,3 +7,4 @@
 .agents/
 .CLAUDE.local.md
 !.claude/CLAUDE.md
+.worktrees/
