@@ -9,11 +9,14 @@ output:
   tufte::tufte_handout:
     citation_package: natbib
     latex_engine: xelatex
+    margin_fig_pos: "0cm"
   tufte::tufte_book:
     citation_package: natbib
     latex_engine: xelatex
+    margin_fig_pos: "0cm"
 bibliography: skeleton.bib
 link-citations: yes
+nocite: '@*'
 ---
 
 ```{r setup, include=FALSE}
@@ -56,7 +59,7 @@ This style provides first and second-level headings (that is, `#` and `##`), dem
 
 Images and graphics play an integral role in Tufte's work. To place figures in the margin you can use the **knitr** chunk option `fig.margin = TRUE`. For example:
 
-```{r fig-margin, fig.margin = TRUE, fig.cap = "MPG vs horsepower, colored by transmission.", fig.width=3.5, fig.height=3.5, cache=TRUE, message=FALSE}
+```{r fig-margin, fig.margin = TRUE, fig.align = 'center', fig.cap = "MPG vs horsepower, colored by transmission.", fig.width=3.5, fig.height=3.5, cache=TRUE, message=FALSE}
 library(ggplot2)
 mtcars2 <- mtcars
 mtcars2$am <- factor(
@@ -68,6 +71,8 @@ ggplot(mtcars2, aes(hp, mpg, color = am)) +
 ```
 
 Note the use of the `fig.cap` chunk option to provide a figure caption. You can adjust the proportions of figures using the `fig.width` and `fig.height` chunk options. These are specified in inches, and will be automatically scaled down to fit within the handout margin.
+
+For PDF output, the vertical offset of margin figures can be set globally via the `margin_fig_pos` argument of `tufte_handout()` and `tufte_book()` (a LaTeX length such as `"0cm"` or `"-5pt"`). It can also be set per-chunk with the `margin_fig_pos` chunk option, which lets a single chunk override the global default without interfering with regular figures' `fig.pos`.
 
 ## Arbitrary Margin Content
 
@@ -125,13 +130,23 @@ If you'd like to place ancillary information in the margin without the sidenote 
 
 # References
 
-References can be displayed as margin notes for HTML output. For example, we can cite R here [@R-base]. To enable this feature, you must set `link-citations: yes` in the YAML metadata, and the version of Pandoc should at least 2.11 or `pandoc-citeproc` should be available and at least 0.7.2. You can always install your own version of Pandoc from https://pandoc.org/installing.html if the version is not sufficient. To check the version of `pandoc-citeproc` in your system, you may run this in R:
+References display as margin notes in HTML output when `link-citations: yes` is set in the YAML metadata. For example, we can cite R here [@R-base]. Otherwise, references appear at the end of the document.
 
-```{r eval=FALSE}
-system2('pandoc-citeproc', '--version')
+Entries cited only via the YAML `nocite` field (above we use `'@*'` to include every bibliography entry) are listed at the bottom of the document, even when in-text citations are pulled into the margin.
+
+For PDF output, citations via `citation_package: natbib` also route through margin sidenotes; `\citet` (used by `@key`) keeps its textual "Author (Year)" form inline while adding the full reference to the margin.
+
+# Bookdown extensions
+
+The output formats `tufte_handout2()`, `tufte_book2()`, and `tufte_html2()` wrap the corresponding **bookdown** output formats and add support for [text references](https://bookdown.org/yihui/bookdown/markdown-extensions-by-bookdown.html#text-references) `(ref:label)` in figure and table captions, and [cross-references](https://bookdown.org/yihui/bookdown/cross-references.html) (e.g. `\@ref(fig:label)`). Requires the **bookdown** package.
+
+```yaml
+output:
+  tufte::tufte_html2: default
+  tufte::tufte_handout2:
+    citation_package: natbib
+    latex_engine: xelatex
 ```
-
-If your version of `pandoc-citeproc` is too low, or you did not set `link-citations: yes` in YAML, references in the HTML output will be placed at the end of the output document.
 
 # Tables
 
